@@ -23,4 +23,7 @@ func ConnectDB() {
 	DB.AutoMigrate(&models.Artist{}, &models.Genre{}, &models.Song{})
 
 	fmt.Println("✅ Database connected and migrated")
+
+	DB.AutoMigrate(&models.User{})
+
 }

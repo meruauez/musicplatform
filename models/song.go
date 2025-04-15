@@ -1,7 +1,7 @@
 package models
 
 type Song struct {
-	ID        uint    `gorm:"primaryKey" json:"-"`
+	ID        uint    `gorm:"primaryKey" json:"id"`
 	CreatedAt string  `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций
 	UpdatedAt string  `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций
 	DeletedAt *string `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций

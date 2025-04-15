@@ -3,32 +3,41 @@ package main
 import (
 	"musicplatform/config"
 	"musicplatform/handlers"
+	"musicplatform/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Подключаемся к базе данных
 	config.ConnectDB()
-
-	// Инициализируем роутер
 	r := gin.Default()
 
+	// Auth endpoints
+	r.POST("/register", handlers.Register)
+	r.POST("/login", handlers.Login)
+
+	// Защищённые маршруты
+	auth := r.Group("/")
+	auth.Use(middlewares.JWTAuthMiddleware())
+
 	// Роуты для артистов
-	r.GET("/artists", handlers.GetArtists)
-	r.POST("/artists", handlers.CreateArtist)
-	r.DELETE("/artists/:id", handlers.DeleteArtist)
+	auth.GET("/artists", handlers.GetArtists)          // Получить всех артистов
+	auth.POST("/artists", handlers.CreateArtist)       // Создать нового артиста
+	auth.DELETE("/artists/:id", handlers.DeleteArtist) // Удалить артиста по ID
+	auth.GET("/artists/:id", handlers.GetArtistByID)   // Получить артиста по ID
 
 	// Роуты для жанров
-	r.GET("/genres", handlers.GetGenres)
-	r.POST("/genres", handlers.CreateGenre)
-	r.DELETE("/genres/:id", handlers.DeleteGenre)
+	auth.GET("/genres", handlers.GetGenres)          // Получить все жанры
+	auth.POST("/genres", handlers.CreateGenre)       // Создать новый жанр
+	auth.DELETE("/genres/:id", handlers.DeleteGenre) // Удалить жанр по ID
+	auth.GET("/genres/:id", handlers.GetGenreByID)   // Получить жанр по ID
 
 	// Роуты для песен с пагинацией и фильтрами
-	r.GET("/songs", handlers.GetSongs)
-	r.POST("/songs", handlers.CreateSong)
-	r.PUT("/songs/:id", handlers.UpdateSong)
-	r.DELETE("/songs/:id", handlers.DeleteSong)
+	auth.GET("/songs", handlers.GetSongs)          // Получить все песни с пагинацией и фильтром
+	auth.POST("/songs", handlers.CreateSong)       // Создать новую песню
+	auth.PUT("/songs/:id", handlers.UpdateSong)    // Обновить песню по ID
+	auth.DELETE("/songs/:id", handlers.DeleteSong) // Удалить песню по ID
+	auth.GET("/songs/:id", handlers.GetSongByID)   // Получить песню по ID
 
 	// Запускаем сервер
 	r.Run(":8080")

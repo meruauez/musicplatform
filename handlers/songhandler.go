@@ -11,6 +11,7 @@ import (
 )
 
 // Получить все песни с пагинацией и фильтром по жанру
+// handlers/songhandler.go
 func GetSongs(c *gin.Context) {
 	var songs []models.Song
 
@@ -18,13 +19,21 @@ func GetSongs(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset := (page - 1) * limit
 
-	genre := c.Query("genre")
+	genreName := c.Query("genre")    // фильтрация по имени жанра
+	artistID := c.Query("artist_id") // фильтрация по id артиста
+	genreID := c.Query("genre_id")   // фильтрация по id жанра
 
 	query := config.DB.Preload("Artist").Preload("Genre")
 
-	if genre != "" {
+	if genreName != "" {
 		query = query.Joins("JOIN genres ON genres.id = songs.genre_id").
-			Where("genres.name = ?", genre)
+			Where("genres.name = ?", genreName)
+	}
+	if artistID != "" {
+		query = query.Where("artist_id = ?", artistID)
+	}
+	if genreID != "" {
+		query = query.Where("genre_id = ?", genreID)
 	}
 
 	query.Offset(offset).Limit(limit).Find(&songs)
