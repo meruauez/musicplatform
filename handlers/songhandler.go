@@ -10,8 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Получить все песни с пагинацией и фильтром по жанру
-// handlers/songhandler.go
 func GetSongs(c *gin.Context) {
 	var songs []models.Song
 
@@ -19,9 +17,9 @@ func GetSongs(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset := (page - 1) * limit
 
-	genreName := c.Query("genre")    // фильтрация по имени жанра
-	artistID := c.Query("artist_id") // фильтрация по id артиста
-	genreID := c.Query("genre_id")   // фильтрация по id жанра
+	genreName := c.Query("genre") // filter
+	artistID := c.Query("artist_id")
+	genreID := c.Query("genre_id")
 
 	query := config.DB.Preload("Artist").Preload("Genre")
 
@@ -41,7 +39,6 @@ func GetSongs(c *gin.Context) {
 	c.JSON(http.StatusOK, songs)
 }
 
-// Получить песню по ID
 func GetSongByID(c *gin.Context) {
 	id := c.Param("id")
 	var song models.Song
@@ -54,7 +51,6 @@ func GetSongByID(c *gin.Context) {
 	c.JSON(http.StatusOK, song)
 }
 
-// Создать новую песню
 func CreateSong(c *gin.Context) {
 	var song models.Song
 	if err := c.ShouldBindJSON(&song); err != nil {
@@ -72,7 +68,6 @@ func CreateSong(c *gin.Context) {
 	c.JSON(http.StatusCreated, song)
 }
 
-// Обновить песню
 func UpdateSong(c *gin.Context) {
 	id := c.Param("id")
 	var song models.Song
@@ -91,7 +86,6 @@ func UpdateSong(c *gin.Context) {
 	c.JSON(http.StatusOK, song)
 }
 
-// Удалить песню
 func DeleteSong(c *gin.Context) {
 	id := c.Param("id")
 	var song models.Song

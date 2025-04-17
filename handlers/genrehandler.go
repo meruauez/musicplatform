@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Получить все жанры
 func GetGenres(c *gin.Context) {
 	var genres []models.Genre
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -20,7 +19,6 @@ func GetGenres(c *gin.Context) {
 	c.JSON(http.StatusOK, genres)
 }
 
-// Получить жанр по ID
 func GetGenreByID(c *gin.Context) {
 	id := c.Param("id")
 	var genre models.Genre
@@ -33,7 +31,6 @@ func GetGenreByID(c *gin.Context) {
 	c.JSON(http.StatusOK, genre)
 }
 
-// Создать новый жанр
 func CreateGenre(c *gin.Context) {
 	var genre models.Genre
 
@@ -50,7 +47,6 @@ func CreateGenre(c *gin.Context) {
 	c.JSON(http.StatusCreated, genre)
 }
 
-// Обновить жанр
 func UpdateGenre(c *gin.Context) {
 	id := c.Param("id")
 	var genre models.Genre
@@ -69,7 +65,6 @@ func UpdateGenre(c *gin.Context) {
 	c.JSON(http.StatusOK, genre)
 }
 
-// Удалить жанр
 func DeleteGenre(c *gin.Context) {
 	id := c.Param("id")
 	var genre models.Genre

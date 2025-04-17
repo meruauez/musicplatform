@@ -7,5 +7,5 @@ import (
 type User struct {
 	gorm.Model
 	Username string `gorm:"unique" json:"username"`
-	Password string `json:"password"` // будет захеширован
+	Password string `json:"password"`
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Получить всех артистов
 func GetArtists(c *gin.Context) {
 	var artists []models.Artist
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -20,7 +19,6 @@ func GetArtists(c *gin.Context) {
 	c.JSON(http.StatusOK, artists)
 }
 
-// Получить артиста по ID
 func GetArtistByID(c *gin.Context) {
 	id := c.Param("id")
 	var artist models.Artist
@@ -33,7 +31,6 @@ func GetArtistByID(c *gin.Context) {
 	c.JSON(http.StatusOK, artist)
 }
 
-// Создать нового артиста
 func CreateArtist(c *gin.Context) {
 	var artist models.Artist
 
@@ -50,7 +47,6 @@ func CreateArtist(c *gin.Context) {
 	c.JSON(http.StatusCreated, artist)
 }
 
-// Обновить артиста
 func UpdateArtist(c *gin.Context) {
 	id := c.Param("id")
 	var artist models.Artist
@@ -69,7 +65,6 @@ func UpdateArtist(c *gin.Context) {
 	c.JSON(http.StatusOK, artist)
 }
 
-// Удалить артиста
 func DeleteArtist(c *gin.Context) {
 	id := c.Param("id")
 	var artist models.Artist

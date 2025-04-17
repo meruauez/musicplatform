@@ -11,14 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte("supersecret") // можешь заменить на .env
+var jwtKey = []byte("supersecret")
 
 type Claims struct {
 	Username string
 	jwt.RegisteredClaims
 }
 
-// /register
 func Register(c *gin.Context) {
 	var input models.User
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -37,7 +36,6 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User created"})
 }
 
-// /login
 func Login(c *gin.Context) {
 	var input models.User
 	if err := c.ShouldBindJSON(&input); err != nil {

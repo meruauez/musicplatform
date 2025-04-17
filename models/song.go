@@ -2,12 +2,12 @@ package models
 
 type Song struct {
 	ID        uint    `gorm:"primaryKey" json:"id"`
-	CreatedAt string  `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций
-	UpdatedAt string  `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций
-	DeletedAt *string `gorm:"-" json:"-"`                   // Исключаем из JSON и миграций
-	Title     string  `json:"title"`                        // Только заголовок песни будет отображаться в ответе
-	ArtistID  uint    `json:"artist_id"`                    // ID артиста
-	Artist    Artist  `gorm:"foreignKey:ArtistID" json:"-"` // Исключаем информацию о самом артисте
-	GenreID   uint    `json:"genre_id"`                     // ID жанра
-	Genre     Genre   `gorm:"foreignKey:GenreID" json:"-"`  // Исключаем информацию о самом жанре
+	CreatedAt string  `gorm:"-" json:"-"`
+	UpdatedAt string  `gorm:"-" json:"-"`
+	DeletedAt *string `gorm:"-" json:"-"`
+	Title     string  `json:"title"`
+	ArtistID  uint    `json:"artist_id"`
+	Artist    Artist  `gorm:"foreignKey:ArtistID" json:"-"`
+	GenreID   uint    `json:"genre_id"`
+	Genre     Genre   `gorm:"foreignKey:GenreID" json:"-"`
 }

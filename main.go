@@ -16,29 +16,28 @@ func main() {
 	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.Login)
 
-	// Защищённые маршруты
+	// safe routes
 	auth := r.Group("/")
 	auth.Use(middlewares.JWTAuthMiddleware())
 
-	// Роуты для артистов
-	auth.GET("/artists", handlers.GetArtists)          // Получить всех артистов
-	auth.POST("/artists", handlers.CreateArtist)       // Создать нового артиста
-	auth.DELETE("/artists/:id", handlers.DeleteArtist) // Удалить артиста по ID
-	auth.GET("/artists/:id", handlers.GetArtistByID)   // Получить артиста по ID
+	//Artists
+	auth.GET("/artists", handlers.GetArtists)
+	auth.POST("/artists", handlers.CreateArtist)
+	auth.DELETE("/artists/:id", handlers.DeleteArtist)
+	auth.GET("/artists/:id", handlers.GetArtistByID)
 
-	// Роуты для жанров
-	auth.GET("/genres", handlers.GetGenres)          // Получить все жанры
-	auth.POST("/genres", handlers.CreateGenre)       // Создать новый жанр
-	auth.DELETE("/genres/:id", handlers.DeleteGenre) // Удалить жанр по ID
-	auth.GET("/genres/:id", handlers.GetGenreByID)   // Получить жанр по ID
+	// Genre
+	auth.GET("/genres", handlers.GetGenres)
+	auth.POST("/genres", handlers.CreateGenre)
+	auth.DELETE("/genres/:id", handlers.DeleteGenre)
+	auth.GET("/genres/:id", handlers.GetGenreByID)
 
-	// Роуты для песен с пагинацией и фильтрами
-	auth.GET("/songs", handlers.GetSongs)          // Получить все песни с пагинацией и фильтром
-	auth.POST("/songs", handlers.CreateSong)       // Создать новую песню
-	auth.PUT("/songs/:id", handlers.UpdateSong)    // Обновить песню по ID
-	auth.DELETE("/songs/:id", handlers.DeleteSong) // Удалить песню по ID
-	auth.GET("/songs/:id", handlers.GetSongByID)   // Получить песню по ID
+	//Songs
+	auth.GET("/songs", handlers.GetSongs) // Получить все песни с пагинацией и фильтром
+	auth.POST("/songs", handlers.CreateSong)
+	auth.PUT("/songs/:id", handlers.UpdateSong)
+	auth.DELETE("/songs/:id", handlers.DeleteSong)
+	auth.GET("/songs/:id", handlers.GetSongByID)
 
-	// Запускаем сервер
 	r.Run(":8080")
 }
