@@ -66,3 +66,46 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
+// GetCurrentUser возвращает информацию о текущем пользователе
+func GetCurrentUser(c *gin.Context) {
+	claims := c.MustGet("claims").(*Claims)
+	username := claims.Username
+
+	var user models.User
+	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"username":   user.Username,
+		"email":      user.Email,
+		"created_at": user.CreatedAt,
+	})
+}
+
+// UpdateCurrentUser обновляет email текущего пользователя
+func UpdateCurrentUser(c *gin.Context) {
+	claims := c.MustGet("claims").(*Claims)
+	username := claims.Username
+
+	var input struct {
+		Email string `json:"email"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	var user models.User
+	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.Email = input.Email
+	config.DB.Save(&user)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Email updated"})
+}

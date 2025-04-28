@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"log"
-	"musicplatform/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,11 +18,5 @@ func ConnectDB() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Автоматическая миграция для всех моделей
-	DB.AutoMigrate(&models.Artist{}, &models.Genre{}, &models.Song{})
-
-	fmt.Println("✅ Database connected and migrated")
-
-	DB.AutoMigrate(&models.User{})
-
+	fmt.Println("✅ Database connected")
 }

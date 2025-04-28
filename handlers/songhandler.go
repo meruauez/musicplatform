@@ -98,3 +98,54 @@ func DeleteSong(c *gin.Context) {
 	config.DB.Delete(&song)
 	c.JSON(http.StatusOK, gin.H{"message": "Song deleted"})
 }
+
+// Получить все песни артиста
+// Получить все песни артиста
+func GetSongsByArtist(c *gin.Context) {
+	// Получаем ID артиста из параметров URL
+	artistIDStr := c.Param("id")
+	artistID, err := strconv.ParseUint(artistIDStr, 10, 32) // Преобразуем строку в целое число
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid artist ID"})
+		return
+	}
+
+	// Проверяем, существует ли артист с таким ID
+	var artist models.Artist
+	if err := config.DB.First(&artist, artistID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Artist not found"})
+		return
+	}
+
+	// Ищем все песни этого артиста
+	var songs []models.Song
+	if err := config.DB.Where("artist_id = ?", artistID).Find(&songs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve songs for this artist"})
+		return
+	}
+
+	// Возвращаем найденные песни
+	c.JSON(http.StatusOK, songs)
+}
+
+// Получить все песни в жанре
+func GetSongsByGenre(c *gin.Context) {
+	genreID := c.Param("id")
+	var songs []models.Song
+	if err := config.DB.Where("genre_id = ?", genreID).Find(&songs).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to retrieve songs for this genre"})
+		return
+	}
+	c.JSON(http.StatusOK, songs)
+}
+
+// Поиск песен по ключевому слову в названии
+func SearchSongs(c *gin.Context) {
+	query := c.DefaultQuery("q", "")
+	var songs []models.Song
+	if err := config.DB.Where("title LIKE ?", "%"+query+"%").Find(&songs).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to search songs"})
+		return
+	}
+	c.JSON(http.StatusOK, songs)
+}
