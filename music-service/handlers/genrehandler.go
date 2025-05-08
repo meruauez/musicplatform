@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"musicplatform/config"
-	"musicplatform/models"
 	"net/http"
 	"strconv"
+
+	"musicplatform/music-service/config"
+	"musicplatform/music-service/models"
 
 	"github.com/gin-gonic/gin"
 )

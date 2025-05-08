@@ -13,8 +13,8 @@ import (
 	"gorm.io/driver/postgres" // <--- меняем
 	"gorm.io/gorm"
 
-	"musicplatform/config"
-	"musicplatform/models"
+	"musicplatform/music-service/config"
+	"musicplatform/music-service/models"
 )
 
 func setupTestDB() {
@@ -27,7 +27,11 @@ func setupTestDB() {
 	// Делаем миграции для нужных таблиц
 	db.AutoMigrate(&models.Song{}, &models.Artist{}, &models.Genre{})
 
-	// Присваиваем глобальной переменной
+	// ⚠️ Чистим таблицы перед каждым тестом (сначала зависимости!)
+	db.Exec("DELETE FROM songs")
+	db.Exec("DELETE FROM artists")
+	db.Exec("DELETE FROM genres")
+
 	config.DB = db
 }
 

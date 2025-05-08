@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: musicplatform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "musicplatform"]
+      interval: 10s  
+      retries: 5 
+      start_period: 30s  
+      timeout: 10s  
+
+  user-service:
+    build: ./user-service
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: musicplatform
+    networks:
+      - backend
+    ports:
+      - "8081:8081" 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]  
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  music-service:
+    build: ./music-service
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: musicplatform
+    networks:
+      - backend
+    ports:
+      - "8082:8082" 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]  
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+networks:
+  backend:
+
+volumes:
+  postgres_data:

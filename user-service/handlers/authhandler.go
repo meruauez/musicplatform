@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"musicplatform/config"
-	"musicplatform/models"
+	"musicplatform/user-service/config"
+	"musicplatform/user-service/models"
+
 	"net/http"
 	"time"
 
@@ -108,4 +109,35 @@ func UpdateCurrentUser(c *gin.Context) {
 	config.DB.Save(&user)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Email updated"})
+}
+
+// GetUserByID получает информацию о пользователе по его ID
+func GetUserByID(c *gin.Context) {
+	// Получаем ID пользователя из параметров URL
+	id := c.Param("id")
+
+	// Ищем пользователя в базе данных по ID
+	var user models.User
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		// Если пользователь не найден, возвращаем ошибку
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Возвращаем информацию о пользователе
+	c.JSON(http.StatusOK, gin.H{
+		"id":         user.ID,
+		"username":   user.Username,
+		"email":      user.Email,
+		"created_at": user.CreatedAt,
+	})
+}
+
+func GetUsers(c *gin.Context) {
+	var users []models.User
+	if err := config.DB.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, users)
 }

@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"musicplatform/handlers"
-	"musicplatform/middlewares"
+	"musicplatform/music-service/handlers"
+	"musicplatform/music-service/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -11,10 +11,9 @@ import (
 func SetupRoutes(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
-	// Группа для защищенных маршрутов (JWT проверка)
 	auth := r.Group("/")
-	auth.Use(middlewares.JWTAuthMiddleware()) // Мидлвар для JWT авторизации
-	// for song
+	auth.Use(middlewares.JWTAuthMiddleware())
+
 	songGroup := r.Group("/songs")
 	{
 		songGroup.GET("/", handlers.GetSongs)
@@ -27,7 +26,6 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		songGroup.GET("/search", handlers.SearchSongs)
 	}
 
-	// for artist
 	artistGroup := r.Group("/artists")
 	{
 		artistGroup.GET("/", handlers.GetArtists)
@@ -36,7 +34,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		artistGroup.PUT("/:id", handlers.UpdateArtist)
 		artistGroup.DELETE("/:id", handlers.DeleteArtist)
 	}
-	// Маршруты для жанров
+
 	genreGroup := r.Group("/genres")
 	{
 		genreGroup.GET("/", handlers.GetGenres)
@@ -45,5 +43,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		genreGroup.PUT("/:id", handlers.UpdateGenre)
 		genreGroup.DELETE("/:id", handlers.DeleteGenre)
 	}
+
+	r.GET("/songs/user/:userID", handlers.GetSongWithUser)
+
 	return r
 }

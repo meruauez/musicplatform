@@ -1,13 +1,21 @@
 package handlers
 
 import (
-	"musicplatform/config"
-	"musicplatform/models"
+	"musicplatform/music-service/config"
+	"musicplatform/music-service/models"
+
+	"github.com/golang-jwt/jwt/v5"
+
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
+type Claims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
 
 func GetArtists(c *gin.Context) {
 	var artists []models.Artist

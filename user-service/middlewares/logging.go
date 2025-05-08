@@ -1,13 +1,16 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 	"strings"
+	"time"
 
-	"musicplatform/handlers"
+	"musicplatform/user-service/handlers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var jwtKey = []byte("supersecret")
@@ -45,5 +48,28 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 		// Переход к следующему обработчику
 		c.Next()
+	}
+}
+
+// LoggingMiddleware - middleware для логирования запросов
+func LoggingMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Генерируем уникальный RequestID для каждого запроса
+		requestID := uuid.New().String()
+
+		// Сохраняем время начала обработки запроса
+		start := time.Now()
+
+		// Записываем начальную информацию
+		log.Printf("[%s] [RequestID: %s] %s %s - Started", time.Now().UTC().Format(time.RFC3339), requestID, c.Request.Method, c.Request.URL.Path)
+
+		// Передаем управление следующему обработчику
+		c.Next()
+
+		// Записываем информацию о завершении запроса
+		duration := time.Since(start)
+		statusCode := c.Writer.Status()
+
+		log.Printf("[%s] [RequestID: %s] %s %s - %d - Duration: %v", time.Now().UTC().Format(time.RFC3339), requestID, c.Request.Method, c.Request.URL.Path, statusCode, duration)
 	}
 }

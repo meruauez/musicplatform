@@ -1,13 +1,18 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
-	"musicplatform/config"
-	"musicplatform/models"
 	"net/http"
 	"strconv"
 
+	"musicplatform/music-service/config"
+	"musicplatform/music-service/models"
+
+	"log"
+
 	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
 )
 
 func GetSongs(c *gin.Context) {
@@ -99,10 +104,8 @@ func DeleteSong(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Song deleted"})
 }
 
-// Получить все песни артиста
-// Получить все песни артиста
 func GetSongsByArtist(c *gin.Context) {
-	// Получаем ID артиста из параметров URL
+
 	artistIDStr := c.Param("id")
 	artistID, err := strconv.ParseUint(artistIDStr, 10, 32) // Преобразуем строку в целое число
 	if err != nil {
@@ -110,25 +113,21 @@ func GetSongsByArtist(c *gin.Context) {
 		return
 	}
 
-	// Проверяем, существует ли артист с таким ID
 	var artist models.Artist
 	if err := config.DB.First(&artist, artistID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Artist not found"})
 		return
 	}
 
-	// Ищем все песни этого артиста
 	var songs []models.Song
 	if err := config.DB.Where("artist_id = ?", artistID).Find(&songs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve songs for this artist"})
 		return
 	}
 
-	// Возвращаем найденные песни
 	c.JSON(http.StatusOK, songs)
 }
 
-// Получить все песни в жанре
 func GetSongsByGenre(c *gin.Context) {
 	genreID := c.Param("id")
 	var songs []models.Song
@@ -139,7 +138,6 @@ func GetSongsByGenre(c *gin.Context) {
 	c.JSON(http.StatusOK, songs)
 }
 
-// Поиск песен по ключевому слову в названии
 func SearchSongs(c *gin.Context) {
 	query := c.DefaultQuery("q", "")
 	var songs []models.Song
@@ -148,4 +146,33 @@ func SearchSongs(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, songs)
+}
+
+func GetSongWithUser(c *gin.Context) {
+	userID := c.Param("userID")
+
+	song := map[string]interface{}{
+		"id":     "1",
+		"title":  "Test Song",
+		"userId": userID,
+	}
+
+	client := resty.New()
+	resp, err := client.R().
+		SetHeader("Accept", "application/json").
+		Get("http://localhost:8081/users/" + userID)
+
+	if err != nil || resp.StatusCode() != http.StatusOK {
+		log.Println("Ошибка при запросе к user-service:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось получить данные пользователя"})
+		return
+	}
+
+	var user map[string]interface{}
+	json.Unmarshal(resp.Body(), &user)
+
+	c.JSON(http.StatusOK, gin.H{
+		"song": song,
+		"user": user,
+	})
 }
