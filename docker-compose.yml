@@ -23,7 +23,8 @@ services:
   user-service:
     build: ./user-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -35,7 +36,7 @@ services:
     ports:
       - "8081:8081" 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]  
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -44,7 +45,8 @@ services:
   music-service:
     build: ./music-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -56,11 +58,21 @@ services:
     ports:
       - "8082:8082" 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]  
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - user-service
+      - music-service
+    networks:
+      - backend
 
 networks:
   backend:

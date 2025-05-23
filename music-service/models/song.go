@@ -7,7 +7,7 @@ type Song struct {
 	DeletedAt *string `gorm:"-" json:"-"`
 	Title     string  `json:"title"`
 	ArtistID  uint    `json:"artist_id"`
-	Artist    Artist  `gorm:"foreignKey:ArtistID" json:"-"`
+	Artist    Artist  `gorm:"foreignKey:ArtistID" json:"artist"`
 	GenreID   uint    `json:"genre_id"`
-	Genre     Genre   `gorm:"foreignKey:GenreID" json:"-"`
+	Genre     Genre   `gorm:"foreignKey:GenreID" json:"genre"`
 }

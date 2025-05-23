@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Song</title>
+  <style>
+    :root {
+      --bg: #f9f9fb;
+      --card: #fff;
+      --primary: #4f46e5;
+      --text: #333;
+      --muted: #666;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .card {
+      background-color: var(--card);
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 1rem;
+      color: var(--text);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 500;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #3730a3;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 1rem;
+    }
+
+    .success {
+      color: #16a34a;
+      margin-top: 1rem;
+    }
+
+    a.back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a.back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>Edit Song</h2>
+    <div class="card">
+      <label for="title">Title</label>
+      <input id="title" type="text" />
+
+      <label for="artistSelect">Artist</label>
+      <select id="artistSelect">
+        <option value="" disabled selected>Loading artists...</option>
+      </select>
+
+      <label for="genreSelect">Genre</label>
+      <select id="genreSelect">
+        <option value="" disabled selected>Loading genres...</option>
+      </select>
+
+      <button id="saveBtn">Save</button>
+      <p id="message" class=""></p>
+    </div>
+
+    <a href="index.html" class="back-link">← Back to song list</a>
+  </main>
+
+  <script>
+    const API_MUSIC_SERVICE = 'http://localhost:8082';
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    const id = getQueryParam('id');
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert('Please log in');
+      window.location.href = 'index.html';
+    }
+
+    if (!id) {
+      alert('Song ID is missing');
+      window.location.href = 'index.html';
+    }
+
+    const titleInput = document.getElementById('title');
+    const artistSelect = document.getElementById('artistSelect');
+    const genreSelect = document.getElementById('genreSelect');
+    const message = document.getElementById('message');
+    const saveBtn = document.getElementById('saveBtn');
+
+    async function loadArtists() {
+      try {
+        const res = await fetch(`${API_MUSIC_SERVICE}/artists`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to load artists');
+        const artists = await res.json();
+        artistSelect.innerHTML = '<option value="" disabled>Select an artist</option>';
+        artists.forEach(artist => {
+          const option = document.createElement('option');
+          option.value = artist.id;
+          option.textContent = artist.name;
+          artistSelect.appendChild(option);
+        });
+      } catch {
+        artistSelect.innerHTML = '<option value="" disabled>Error loading artists</option>';
+      }
+    }
+
+    async function loadGenres() {
+      try {
+        const res = await fetch(`${API_MUSIC_SERVICE}/genres`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to load genres');
+        const genres = await res.json();
+        genreSelect.innerHTML = '<option value="" disabled>Select a genre</option>';
+        genres.forEach(genre => {
+          const option = document.createElement('option');
+          option.value = genre.id;
+          option.textContent = genre.name;
+          genreSelect.appendChild(option);
+        });
+      } catch {
+        genreSelect.innerHTML = '<option value="" disabled>Error loading genres</option>';
+      }
+    }
+
+    async function loadSong() {
+      try {
+        const res = await fetch(`${API_MUSIC_SERVICE}/songs/${id}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to load song');
+
+        const song = await res.json();
+
+        titleInput.value = song.title || '';
+
+        // Установить выбранный артист и жанр по ID
+        // Но сначала убедиться, что селекты заполнены
+        // Для этого можно ждать, пока загрузятся артисты и жанры,
+        // или просто после загрузки песни выбирать
+
+        // Отложим установку выбранных значений:
+        await loadArtists();
+        await loadGenres();
+
+        artistSelect.value = song.artist_id ?? '';
+        genreSelect.value = song.genre_id ?? '';
+      } catch (err) {
+        alert(err.message);
+        window.location.href = 'index.html';
+      }
+    }
+
+    saveBtn.onclick = async () => {
+      const title = titleInput.value.trim();
+      const artist_id = Number(artistSelect.value);
+      const genre_id = Number(genreSelect.value);
+
+      message.textContent = '';
+      message.className = '';
+
+      if (!title || !artist_id || !genre_id) {
+        message.textContent = 'Please fill in all fields';
+        message.className = 'error';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_MUSIC_SERVICE}/songs/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, artist_id, genre_id })
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Error saving changes');
+        }
+        message.textContent = 'Song updated successfully!';
+        message.className = 'success';
+      } catch (err) {
+        message.textContent = err.message;
+        message.className = 'error';
+      }
+    };
+
+    // Запускем загрузку песни (внутри загрузятся также артисты и жанры)
+    loadSong();
+  </script>
+</body>
+</html>

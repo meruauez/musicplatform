@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+input, select, button {
+  margin: 5px 5px 15px 0;
+  padding: 8px;
+  font-size: 14px;
+}
+
+button {
+  cursor: pointer;
+}
+
+.message {
+  color: green;
+  margin-bottom: 10px;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.loading {
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+#songs-container > div {
+  border-bottom: 1px solid #ccc;
+  padding: 8px 0;
+}
+
+button {
+  margin-left: 10px;
+}

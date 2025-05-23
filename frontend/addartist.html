@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Artist - MusicPlatform</title>
+  <style>
+    :root {
+      --bg: #f9f9fb;
+      --card: #fff;
+      --primary: #4f46e5;
+      --text: #333;
+      --border: #e5e7eb;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: var(--card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    nav .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: var(--primary);
+    }
+    nav .user-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    nav .user-controls span {
+      font-weight: 600;
+    }
+    nav .user-controls button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+    }
+    nav .user-controls button:hover {
+      background-color: #3730a3;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+    nav ul li a:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    main {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+    .card {
+      background-color: var(--card);
+      padding: 1.5rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 1rem;
+      color: var(--text);
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 500;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+    button:hover {
+      background-color: #3730a3;
+    }
+    .error {
+      color: #dc2626;
+      margin-top: 1rem;
+    }
+    .success {
+      color: #16a34a;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">
+      <a href="index.html">🎵 MusicPlatform</a>
+    </div>
+    <ul>
+      <li><a href="addsong.html">Add Song</a></li>
+      <li><a href="addartist.html">Add Artist</a></li>
+      <li><a href="addgenre.html">Add Genre</a></li>
+    </ul>
+    <div class="user-controls">
+      <span id="userNameDisplay">Guest</span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <h2>Add Artist</h2>
+    <div class="card">
+      <label for="name">Artist Name</label>
+      <input id="name" type="text" />
+
+      <button id="addBtn">Add Artist</button>
+      <p id="message" class=""></p>
+    </div>
+  </main>
+
+  <script>
+    const API_MUSIC_SERVICE = 'http://localhost:8082';
+    const token = localStorage.getItem('token');
+
+    window.onload = () => {
+      const username = localStorage.getItem('username') || 'Guest';
+      document.getElementById('userNameDisplay').textContent = username;
+
+      if (!token) {
+        alert('Please log in');
+        window.location.href = 'index.html';
+      }
+    };
+
+    const nameInput = document.getElementById('name');
+    const message = document.getElementById('message');
+    const addBtn = document.getElementById('addBtn');
+
+    addBtn.onclick = async () => {
+      const name = nameInput.value.trim();
+
+      message.textContent = '';
+      message.className = '';
+
+      if (!name) {
+        message.textContent = 'Please enter an artist name';
+        message.className = 'error';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_MUSIC_SERVICE}/artists`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name })
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Error adding artist');
+        }
+
+        message.textContent = 'Artist added successfully!';
+        message.className = 'success';
+
+        nameInput.value = '';
+      } catch (err) {
+        message.textContent = err.message;
+        message.className = 'error';
+      }
+    };
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

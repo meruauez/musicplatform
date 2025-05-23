@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register — MusicPlatform</title>
+  <style>
+    :root {
+      --bg: #f9f9fb;
+      --card: #fff;
+      --primary: #4f46e5;
+      --text: #333;
+      --muted: #666;
+      --border: #e5e7eb;
+    }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      width: 320px;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      border: none;
+      padding: 0.7rem;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      margin-bottom: 0.5rem;
+    }
+    button:hover {
+      background-color: #3730a3;
+    }
+    .login-btn {
+      background-color: #e5e7eb;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .login-btn:hover {
+      background-color: #d1d5db;
+    }
+    #error {
+      color: #dc2626;
+      min-height: 1.2em;
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    #success {
+      color: #16a34a;
+      min-height: 1.2em;
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="email" id="email" placeholder="Email (optional)" />
+      <button type="submit">Register</button>
+    </form>
+    <button class="login-btn" onclick="location.href='login.html'">Log In</button>
+    <p id="error"></p>
+    <p id="success"></p>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const email = document.getElementById("email").value.trim();
+
+      document.getElementById("error").textContent = "";
+      document.getElementById("success").textContent = "";
+
+      if (!username || !password) {
+        document.getElementById("error").textContent = "Please enter username and password";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8081/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password, email }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          document.getElementById("error").textContent = data.error || "Registration error";
+          return;
+        }
+
+        document.getElementById("success").textContent = data.message || "Registration successful!";
+        document.getElementById("registerForm").reset();
+
+      } catch (error) {
+        console.error("Register error:", error);
+        document.getElementById("error").textContent = "Server error";
+      }
+    });
+  </script>
+
+</body>
+</html>
